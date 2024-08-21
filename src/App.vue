@@ -1,21 +1,30 @@
 <template>
-  <div>
-    <div class="container">
-      <h1>DNS Checker</h1>
-      <form @submit.prevent="addDns">
-        <input v-model="newDns" placeholder="Enter DNS" required />
-        <button type="submit">Add DNS</button>
-      </form>
+  <div class="container">
+    <h1>DNS Checker</h1>
+    <form @submit.prevent="addDns">
+      <input v-model="newDns" placeholder="Enter DNS" required />
+      <button type="submit" aria-label="Add DNS">
+        <i class="icon pi pi-plus"></i>
+      </button>
+    </form>
 
-      <table class="table">
-        <tbody>
-          <tr v-for="dns in dnsList" :key="dns.url">
-            <td>{{ dns.url }}</td>
-            <td :class="[ dns.status === 'Offline' ? 'text-danger' : 'text-success']">{{ dns.status }}</td>
-            <td :class="[ dns.responseTime > 1000 ? (dns.responseTime > 15000 ? 'text-danger' : 'text-warning') : '']">{{ dns.responseTime }} ms</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="card-container">
+      <div class="card" v-for="(dns) in dnsList" :key="dns.url" :class="{
+        'offline': dns.status === 'Offline',
+        'slow': dns.responseTime > 10
+      }">
+        <div class="card-header">
+          <h3 class="card-title">{{ dns.url }}</h3>
+          <button class="delete-button" @click="deleteDns(dns.url)" aria-label="Delete DNS">
+            <i class="icon pi pi-trash"></i>
+          </button>
+        </div>
+
+        <div class="card-info">
+          <span class="status">{{ dns.status }}</span>
+          <span class="response-time">{{ dns.responseTime }} ms</span>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -23,6 +32,7 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { openDB } from 'idb';
+import 'primeicons/primeicons.css'
 
 const newDns = ref('');
 const dnsList = ref([]);
@@ -80,37 +90,115 @@ async function addDns() {
   newDns.value = '';
   checkDNS(dns);
 };
+
+async function deleteDns(url) {
+  const db = await dbPromise;
+  await db.delete('dns', url);
+  await loadDns();
+  await checkAllDns();
+}
 </script>
 
 <style lang="scss" scoped>
-.container {
-  max-width: 900px;
-  padding: 0 15px;
-  margin: 0 auto;
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f4f9;
+  display: flex;
+  justify-content: center;
+  max-height: 900px;
+  margin: 0;
 }
 
-.table {
+h1 {
+  color: #333;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+form {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
   width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+}
 
-  th, td {
-    padding: 6px 12px;
-    background: #EEE;
+input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin-right: 10px;
+}
+
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 3px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #45a049;
   }
-
-  tr:nth-child(even) td {
-    background: #CCC;
-  }
 }
 
-.text-danger {
-  color: #dc3545;
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  margin-top: 20px;
 }
 
-.text-warning {
-  color: #fd7e14;
+.card {
+  max-width: 300px;
+  flex-basis: calc(33.33% - 20px);
+  margin: 10px;
+  padding: 30px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #198754;
+  color: #fafafa;
 }
 
-.text-success {
-  color: #198754;
+.card.offline {
+  background-color: #dc3545;
+}
+
+.card.slow {
+  background-color: #fd7e14;
+}
+
+.card-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.card-info {
+  display: flex;
+  justify-content: space-between;
+}
+
+.info {
+  color: #222;
+  font-size: 36px;
+}
+
+.delete-button {
+  background-color: transparent;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 </style>
