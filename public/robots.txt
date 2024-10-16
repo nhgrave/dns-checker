@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dns-checker-3kor.onrender.com/sitemap.xml
