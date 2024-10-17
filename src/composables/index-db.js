@@ -11,12 +11,13 @@ export function useIndexDB(dbName = 'dns-checker', storeName = 'dns') {
   });
 
   async function getData(id) {
-    return db.getData(id);
+    const db = await dbPromise;
+    return db.get(storeName, id);
   }
 
   async function getAllData() {
     const db = await dbPromise;
-    dnsList.value = await db.getAll('dns');
+    dnsList.value = await db.getAll(storeName);
   }
 
   async function addData(data) {
@@ -36,7 +37,10 @@ export function useIndexDB(dbName = 'dns-checker', storeName = 'dns') {
   }
 
   async function deleteData(id) {
-    return db.deleteData(id);
+    const db = await dbPromise;
+    await db.delete(storeName, id);
+    dnsList.value = dnsList.value.filter(item => item.url !== id);
+    return id;
   }
 
   return {

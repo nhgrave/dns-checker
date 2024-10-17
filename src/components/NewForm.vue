@@ -15,7 +15,7 @@
 import { ref } from 'vue';
 import { useIndexDB } from '@/composables/index-db';
 
-const { addData } = useIndexDB();
+const { getData, addData } = useIndexDB();
 
 const newDns = ref('');
 const errorMessage = ref('');
@@ -27,6 +27,13 @@ async function addDns() {
 
   if (!dnsRegex.test(newDns.value)) {
     errorMessage.value = 'Please enter a valid DNS with http or https';
+    return;
+  }
+
+  const dnsExists = await getData(newDns.value);
+
+  if (dnsExists) {
+    errorMessage.value = 'DNS already exists';
     return;
   }
 

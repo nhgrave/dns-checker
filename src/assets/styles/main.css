@@ -5,3 +5,23 @@ body, input, button {
   font-optical-sizing: auto;
   font-style: normal;
 }
+
+.d-flex {
+  display: flex;
+}
+
+.flex-column {
+  flex-direction: column;
+}
+
+.justify-content-between {
+  justify-content: space-between;
+}
+
+.m-t-auto {
+  margin-top: auto;
+}
+
+.m-l-auto {
+  margin-left: auto;
+}

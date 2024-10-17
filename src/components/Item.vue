@@ -1,14 +1,21 @@
 <template>
-  <div class="item" :class="item.status">
-    <a :href="item.url" target="_blank" class="title">
-      {{ item.url }}
-    </a>
-    <span class="status" :class="statusClass">
-      {{ item.status }}
-    </span>
-    <span class="time" :class="timeClass">
-      {{ item.responseTime }} ms
-    </span>
+  <div class="item d-flex flex-column" :class="item.status">
+    <div class="d-flex justify-content-between">
+      <a :href="item.url" target="_blank" class="title">
+        {{ item.url }}
+      </a>
+      <span>
+        <Trash class="trash-icon" @click="deleteItem"/>
+      </span>
+    </div>
+    <div class="d-flex justify-content-between m-t-auto">
+      <span class="status" :class="statusClass">
+        {{ item.status }}
+      </span>
+      <span class="time m-l-auto" :class="timeClass">
+        {{ item.responseTime }} ms
+      </span>
+    </div>
   </div>
 </template>
 
@@ -16,9 +23,10 @@
 import { computed, onMounted } from 'vue';
 import { useCheckDns } from '@/composables/check-dns';
 import { useIndexDB } from '@/composables/index-db';
+import Trash from '@/assets/svg/trash.svg';
 
 const { checkDns } = useCheckDns();
-const { updateData } = useIndexDB();
+const { updateData, deleteData } = useIndexDB();
 
 const props = defineProps({
   item: {
@@ -51,6 +59,13 @@ onMounted(() => {
       });
   }, timeout);
 });
+
+function deleteItem() {
+  if (confirm('Do you want to delete this item?')) {
+    deleteData(props.item.url);
+    window.dispatchEvent(new Event('dns-list-changed'));
+  }
+}
 </script>
 
 <style lang="scss" scoped>
@@ -73,18 +88,7 @@ onMounted(() => {
 }
 
 .title {
-  display: block;
-  width: 100%;
   margin: 0 0 1rem;
-}
-
-.status {
-  align-self: flex-end;
-}
-
-.time {
-  margin-left: auto;
-  align-self: flex-end;
 }
 
 .text-danger {
@@ -97,5 +101,16 @@ onMounted(() => {
 
 .text-success {
   color: #198754;
+}
+
+.trash-icon {
+  width: 1rem;
+  height: 1rem;
+  color: #cdcdcd;
+
+  &:hover {
+    cursor: pointer;
+    color: #dc3545;
+  }
 }
 </style>
