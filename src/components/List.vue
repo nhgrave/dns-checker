@@ -6,6 +6,17 @@
       :item="dns"
       class="list-item"
     />
+
+    <div v-if="!dnsList.length" class="empty-wrapper">
+      <img
+        src="../assets/images/empty.png"
+        alt="Empty box"
+        title="Empty box"
+        loading="lazy"
+        class="empty-logo"
+      >
+      <p class="empty-text">Your list is Empty</p>
+    </div>
   </div>
 </template>
 
@@ -39,5 +50,21 @@ onMounted(() => {
   @media (min-width: 768px) {
     width: calc(50% - 0.5rem);
   }
+}
+
+.empty-wrapper {
+  text-align: center;
+  width: 100%;
+}
+
+.empty-logo {
+  width: 200px;
+  height: 200px;
+  opacity: 0.8;
+}
+
+.empty-text {
+  font-size: 1.5rem;
+  color: #B3B3B3;
 }
 </style>
